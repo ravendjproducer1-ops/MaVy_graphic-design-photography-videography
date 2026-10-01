@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="km" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#030712">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Ma Vy | Graphic Designer, Photographer & Videographer</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Official Portfolio of Ma Vy - Graphic Designer, Photographer and Videographer.">
+    <meta name="keywords" content="Ma Vy, Graphic Design, Photography, Videography, Portfolio">
+    <meta name="author" content="Ma Vy">
+
+    <!-- Open Graph / Social Media Sharing Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Ma Vy | Elite Software Developer & System Administrator">
+    <meta property="og:description" content="Explore my graphic design, photography and videography work, and play 6 mini-games.">
+    <meta property="og:image" content="og.jpg">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="profile.css">
+    <link rel="stylesheet" href="smooth.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- AOS Animation Library CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body data-theme-color="blue" data-lang="km">
+
+    <div class="scroll-progress" id="scrollProgress"></div>
+    <!-- Code Rain Canvas Background -->
+    <canvas id="matrixCanvas"></canvas>
+
+    <!-- Animated Background Motion Orbs -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+    <div class="ambient-glow glow-3"></div>
+
+    <div class="site-wrapper">
+
+        <!-- Top Navigation / Header -->
+        <header class="site-header" data-aos="fade-down" data-aos-duration="800">
+            <div class="brand-box">
+                <div class="brand-avatar">
+                    <img src="LOGO-2.webp" alt="Ma Vy" width="46" height="46" decoding="async">
+                </div>
+                <span class="brand-name">MA VY <span class="dot">.</span></span>
+            </div>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+
+            <!-- Global Live Status Badge for Header -->
+            <div class="header-status-indicator">
+                <span class="status-pulse"></span>
+                <span class="status-text" data-i18n="servers_status">Servers Operational: 100%</span>
+            </div>
+
+            <div class="header-controls">
+                <!-- Language Switcher Toggle -->
+                <div class="lang-switcher" id="langSwitchBtn" title="ប្តូរភាសា / Change Language">
+                    <span class="lang-badge active" data-lang-val="km">ខ្មែរ</span>
+                    <span class="lang-divider">/</span>
+                    <span class="lang-badge" data-lang-val="en">EN</span>
+                </div>
+
+                <!-- Interactive Accent Color Switcher -->
+                <div class="theme-switcher">
+                    <span class="switcher-label">Theme:</span>
+                    <button class="color-dot blue active" data-color="blue" title="Cyber Blue"></button>
+                    <button class="color-dot green" data-color="green" title="Matrix Green"></button>
+                    <button class="color-dot purple" data-color="purple" title="Neon Purple"></button>
+                </div>
+            </div>
+
+            <nav class="nav-links">
+                <a href="#about" data-i18n="nav_about">អំពីខ្ញុំ</a>
+                <a href="#techstack" data-i18n="nav_skills">ជំនាញ</a>
+                <a href="#projects" data-i18n="nav_projects">ស្នាដៃ</a>
+                <a href="#iqgame" data-i18n="nav_game">ល្បែង Arcade</a>
+                <a href="#contact" class="nav-contact-btn" data-i18n="nav_contact">ទំនាក់ទំនង</a>
+            </nav>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content" data-aos="fade-right" data-aos-duration="1000">
+                <div class="live-badge">
+                    <span class="pulse-dot"></span>
+                    <span data-i18n="hero_badge">Available for Hire & System Admin</span>
+                </div>
+                <h1 class="hero-title"><span data-i18n="hero_title_1">កសាងប្រព័ន្ធឌីជីថល</span> <br><span data-i18n="hero_title_2">និងសូហ្វវែរដ៏មាន</span><span class="text-gradient" data-i18n="hero_title_3">ឥទ្ធិពល</span></h1>
+                <p class="hero-desc" data-i18n="hero_desc">
+                    សួស្តី! ខ្ញុំឈ្មោះ Ma Vy។ មានជំនាញច្បាស់លាស់ក្នុងការអភិវឌ្ឍប្រព័ន្ធ កែសម្រួលស្គ្រីប និងការគ្រប់គ្រងម៉ាស៊ីនបម្រើ (Server) កម្រិតខ្ពស់។
+                </p>
+                <div class="hero-cta">
+                    <a href="#projects" class="btn-glow" data-i18n="btn_projects">ស្វែងរកស្នាដៃ</a>
+                    <a href="#iqgame" class="btn-glass" data-i18n="btn_game">លេងហ្គេមឥឡូវនេះ</a>
+                </div>
+            </div>
+            <div class="hero-image-box" data-aos="fade-left" data-aos-duration="1000">
+                <div class="image-frame-container">
+                    <div class="image-frame">
+                        <img src="profile.webp" alt="Ma Vy" width="720" height="909" fetchpriority="high" decoding="async">
+                    </div>
+                    <!-- Live Server / Work Status Floating Badge -->
+                    <div class="floating-status-badge">
+                        <span class="status-dot-mini"></span>
+                        <div>
+                            <span class="badge-title" data-i18n="work_status_title">Work Status</span>
+                            <span class="badge-sub" data-i18n="work_status_sub">Ready for Projects</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bento Grid Main Showcase -->
+        <section class="bento-container">
+            
+            <!-- About Card -->
+            <div class="bento-box about-box glow-card" id="about" data-aos="fade-up" data-aos-duration="800">
+                <div class="mouse-glow"></div>
+                <h3 data-i18n="about_title">ទស្សនវិស័យ និងការតាំងចិត្ត</h3>
+                <p data-i18n="about_desc">ផ្តោតសំខាន់លើការសរសេរកូដស្អាត (Clean Code) សុវត្ថិភាពប្រព័ន្ធខ្ពស់ និងការបង្កើតបទពិសោធន៍ប្រើប្រាស់ដ៏រលូនបំផុតដោយមិនមានការរអាក់រអួល។</p>
+            </div>
+
+            <!-- Experience Card -->
+            <div class="bento-box exp-box glow-card" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
+                <div class="mouse-glow"></div>
+                <h3 data-i18n="exp_title">បទពិសោធការងារ</h3>
+                <div class="exp-timeline">
+                    <span class="exp-badge" data-i18n="exp_badge">បច្ចុប្បន្ន</span>
+                    <h4 data-i18n="exp_position">Software Developer & System Administrator</h4>
+                    <p data-i18n="exp_desc">គ្រប់គ្រងប្រព័ន្ធម៉ាស៊ីនបម្រើ អភិវឌ្ឍន៍ និងកែសម្រួលកូដប្រព័ន្ធយ៉ាងមានសុវត្ថិភាព។</p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Tech Stack & Skills Category Filter Section -->
+        <section class="techstack-section" id="techstack" data-aos="fade-up" data-aos-duration="1000">
+            <div class="techstack-header">
+                <h2 data-i18n="tech_section_title">ជំនាញរបស់ខ្ញុំ</h2>
+                <p data-i18n="tech_section_desc">ការរចនាក្រាហ្វិក ការថតរូប និងការថតកាត់តវីដេអូ។</p>
+            </div>
+            <div class="tech-grid skills3">
+                <div class="tech-card glow-card"><div class="mouse-glow"></div><div class="tech-icon-box sk-a"><span data-ic="palette" data-s="32"></span></div><div class="tech-info"><h4>Graphic Design</h4><span>Logo · Poster · Branding</span></div></div>
+                <div class="tech-card glow-card"><div class="mouse-glow"></div><div class="tech-icon-box sk-b"><span data-ic="camera" data-s="32"></span></div><div class="tech-info"><h4>Photography</h4><span>Portrait · Product · Event</span></div></div>
+                <div class="tech-card glow-card"><div class="mouse-glow"></div><div class="tech-icon-box sk-c"><span data-ic="video" data-s="32"></span></div><div class="tech-info"><h4>Videography</h4><span>Shooting · Editing · Motion</span></div></div>
+                
+            </div>
+        </section>
+
+        <!-- Projects Bento Showcase -->
+        <section class="process" data-aos="fade-up">
+            <h3>ដំណើរការធ្វើការ · Process</h3>
+            <ol><li><span data-ic="pen" data-s="26"></span><b>Brief</b><small>ទទួលគំនិត</small></li><li><span data-ic="palette" data-s="26"></span><b>Concept</b><small>រចនា</small></li><li><span data-ic="camera" data-s="26"></span><b>Production</b><small>ផលិត</small></li><li><span data-ic="check" data-s="26"></span><b>Delivery</b><small>ប្រគល់ស្នាដៃ</small></li></ol>
+        </section>
+
+        <section class="techstack-section" id="projects" data-aos="fade-up" data-aos-duration="1000">
+            <div class="techstack-header">
+                <h2 data-i18n="gal_title">ស្នាដៃរបស់ខ្ញុំ</h2>
+                <p data-i18n="gal_desc">ជ្រើសរើសស្នាដៃ ការរចនា រូបថត និងវីដេអូ។</p>
+                <div class="g-tabs gal-filter"><button class="g-tab active" data-f="all">All</button><button class="g-tab" data-f="design">Design</button><button class="g-tab" data-f="photo">Photo</button><button class="g-tab" data-f="video">Video</button></div>
+            </div>
+            <div class="gallery" id="gallery"></div>
+        </section>
+
+        <!-- Arcade Section -->
+        <section class="iq-game-section" id="iqgame" data-aos="fade-up" data-aos-duration="1000">
+            <div class="iq-game-card glow-card">
+                <div class="mouse-glow"></div>
+                <div class="iq-header">
+                    <span class="iq-badge">ARCADE ZONE · 4 GAMES</span>
+                    <h2 data-i18n="arcade_title">ជ្រើសរើសហ្គេម ហើយបំបែកកំណត់ត្រា!</h2>
+                    <p data-i18n="arcade_desc">ហ្គេមតូចៗ ៥ ប្រភេទ៖ ចងចាំ ចាប់មេរោគ ពស់ ល្បងប្រាជ្ញា និងវាយអក្សរលឿន។</p>
+                </div>
+                <div class="g-tabs">
+                    <button class="g-tab" data-g="memory"><span data-ic="cards"></span> Memory</button>
+                    <button class="g-tab" data-g="snake"><span data-ic="snake"></span> Snake</button>
+                    <button class="g-tab" data-g="dodge"><span data-ic="gamepad"></span> Dodge</button>
+                    <button class="g-tab" data-g="color"><span data-ic="palette"></span> Color Match</button>
+                </div>
+                <div class="g-wrap">
+                    <div class="g-best" id="gameBest"></div>
+                    <div class="g-stage" id="gameStage"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="contact-section" id="contact" data-aos="fade-up" data-aos-duration="1000">
+            <div class="contact-card-modern glow-card">
+                <div class="mouse-glow"></div>
+                <div class="contact-info-side">
+                    <h2 data-i18n="contact_heading">ចាប់ផ្តើមការងារជាមួយគ្នា</h2>
+                    <p data-i18n="contact_desc">មានគម្រោង ឬចង់ពិភាក្សាការងារជាមួយខ្ញុំ? សូមចុចលើអ៊ីមែលខាងក្រោមដើម្បីចម្លងទុក (Copy) ឬទាក់ទងតាមបណ្តាញសង្គមផ្ទាល់ខ្លួន៖</p>
+                    
+                    <div class="email-direct copy-trigger" id="copyEmailBtn" data-email="ravendjproducer.1@gmail.com" title="ចុចដើម្បី Copy អ៊ីមែល">
+                        <div class="email-header-row">
+                            <span data-i18n="email_label">អ៊ីមែលផ្ទាល់ខ្លួន (ចុចដើម្បី Copy)៖</span>
+                            <span class="copy-feedback" id="copyFeedback">Copied!</span>
+                        </div>
+                        <a href="javascript:void(0);" class="email-text-val">ravendjproducer.1@gmail.com</a>
+                    </div>
+
+                    <div class="social-links-box">
+                        <span data-i18n="social_label">បណ្តាញសង្គមផ្ទាល់ខ្លួន៖</span>
+                        <div class="social-buttons">
+                            <a href="https://t.me/MAVY19000" target="_blank" rel="noopener" class="social-btn telegram">Telegram</a>
+                            <a href="https://github.com/ravendjproducer1-ops" target="_blank" rel="noopener" class="social-btn github">GitHub</a>
+                            <a href="https://www.facebook.com/son.moeun?mibextid=LQQJ4d" target="_blank" rel="noopener" class="social-btn facebook">Facebook</a>
+                        </div>
+                    </div>
+
+                    <a class="qr-card" href="https://t.me/MAVY19000" target="_blank" rel="noopener">
+                        <img src="telegram-qr.webp" alt="Telegram QR @MAVY19000" width="640" height="777" loading="lazy" decoding="async">
+                        <div>
+                            <b data-i18n="qr_title">Scan to chat on Telegram</b>
+                            <span data-i18n="qr_desc">Scan with your phone or tap to open Telegram directly.</span>
+                            <span class="qr-handle">@MAVY19000</span>
+                        </div>
+                    </a>
+
+                    
+                </div>
+
+                <form id="contactForm" class="contact-form-side">
+                    <div class="input-group">
+                        <input type="text" id="senderName" data-i18n-placeholder="form_name" placeholder="ឈ្មោះរបស់អ្នក" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="email" id="senderEmail" data-i18n-placeholder="form_email" placeholder="អ៊ីមែលរបស់អ្នក" required>
+                    </div>
+                    <div class="input-group">
+                        <textarea id="senderMessage" rows="4" data-i18n-placeholder="form_msg" placeholder="សរសេរខ្លឹមសារសារ..." required></textarea>
+                    </div>
+                    <button type="submit" id="submitBtn" class="btn-glow full-w" data-i18n="form_submit">បញ្ជូនសារឥឡូវនេះ</button>
+                </form>
+                <div class="aba-card">
+                        <div class="aba-ic" data-ic="wallet" data-s="28"></div>
+                        <div><b data-i18n="aba_title">បង់ប្រាក់តាម ABA</b><span data-i18n="aba_desc">ទូទាត់សេវាកម្មយ៉ាងរហ័ស និងសុវត្ថិភាពតាម ABA Pay។</span></div>
+                        <a class="btn-glow" href="https://pay.ababank.com/oRF8/qvohrtpl" target="_blank" rel="noopener" data-i18n="aba_btn">បង់ឥឡូវនេះ</a>
+                    </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="site-footer" data-aos="fade" data-aos-duration="800">
+            <p data-i18n="footer_text">&copy; 2026 Ma Vy. រក្សាសិទ្ធិគ្រប់យ៉ាង។ រចនា និងអភិវឌ្ឍដោយភាពប្រណីត។</p>
+        <a class="admin-link" href="admin.html"><span data-ic="sliders" data-s="14"></span> Admin</a>
+        </footer>
+
+    </div>
+
+    <!-- AOS Animation Library JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Script File -->
+    <script src="config-data.js"></script>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+    <script src="smooth.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="icons.js"></script>
+    <script src="site.js"></script>
+    <script src="games.js"></script>
+</body>
+</html>
