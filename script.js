@@ -15,7 +15,7 @@ const translations = {
         btn_projects: "ស្វែងរកស្នាដៃ",
         btn_game: "លេងហ្គេមឥឡូវនេះ",
         work_status_title: "ស្ថានភាពការងារ",
-        work_status_sub: "Ready for Projects",
+        work_status_sub: "ទទួលគម្រោងថ្មី",
         about_title: "ទស្សនវិស័យ និងការតាំងចិត្ត",
         about_desc: "ខ្ញុំយកចិត្តទុកដាក់លើព័ត៌មានលម្អិត ពណ៌ ការតុបតែងរូបភាព និងអារម្មណ៍នៃរូបភាពនីមួយៗ ដើម្បីឱ្យស្នាដៃមានតម្លៃពិតប្រាកដ។",
         skills_title: "ជំនាញស្នូល",
@@ -60,7 +60,7 @@ const translations = {
         gal_cta: "ស្នើសុំមើល Portfolio",
         qr_title: "ស្កេន QR ដើម្បីទាក់ទងតាម Telegram",
         qr_desc: "ស្កេនដោយទូរស័ព្ទ ឬចុចដើម្បីបើក Telegram ផ្ទាល់។",
-        footer_text: "© 2026 Ma Vy. រក្សាសិទ្ធិគ្រប់យ៉ាង។ រចនា និងអភិវឌ្ឍដោយភាពប្រណីត។"
+        footer_text: "© 2026 Ma Vy. រក្សាសិទ្ធិគ្រប់យ៉ាង។ រចនាដោយ Ma Vy។"
     },
     en: {
         servers_status: "Servers Operational: 100%",
@@ -123,7 +123,7 @@ const translations = {
         gal_cta: "Request portfolio",
         qr_title: "Scan to chat on Telegram",
         qr_desc: "Scan with your phone or tap to open Telegram directly.",
-        footer_text: "© 2026 Ma Vy. All rights reserved. Designed and developed with precision."
+        footer_text: "© 2026 Ma Vy. All rights reserved. Designed by Ma Vy."
     }
 };
 
@@ -135,45 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (innerWidth < 900) document.querySelectorAll('[data-aos="fade-right"],[data-aos="fade-left"],[data-aos="fade-down"]').forEach(el => el.setAttribute('data-aos', 'fade-up'));
     AOS.init({ once: true, offset: 40, duration: 750, easing: 'ease-out-cubic', disable: reduceMotion });
 
-    // Code rain (throttled, rAF, pauses when tab hidden)
-    const canvas = document.getElementById('matrixCanvas');
-    const ctx = canvas.getContext('2d');
-    const small = innerWidth < 768;
-    const fontSize = small ? 20 : 24;
-    const frameGap = small ? 70 : 50;
-    const characters = "កខគឃងចឆជឈញដថឌឍណតថទធនបផពភមយរលវសហឡអ" + "01ABCDEFGHIJKLMNOPQRSTUVWXYZ#$*&";
-    let drops = [], color = '#3b82f6', last = 0, tick = 0, rafId = 0;
-
-    function resizeCanvas() {
-        canvas.width = innerWidth;
-        canvas.height = innerHeight;
-        drops = Array.from({ length: Math.floor(canvas.width / fontSize) }, () => -Math.floor(Math.random() * 40));
-        ctx.font = "bold " + fontSize + "px 'Kantumruy Pro', monospace";
-    }
-    let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resizeCanvas, 200); });
-    resizeCanvas();
-
-    function drawMatrixRain(t) {
-        rafId = requestAnimationFrame(drawMatrixRain);
-        if (t - last < frameGap) return;
-        last = t;
-        if (tick++ % 40 === 0) color = getComputedStyle(document.body).getPropertyValue('--accent-color').trim() || color;
-        ctx.fillStyle = "rgba(3, 7, 18, 0.12)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = color;
-        for (let i = 0; i < drops.length; i++) {
-            ctx.fillText(characters.charAt(Math.floor(Math.random() * characters.length)), i * fontSize, drops[i] * fontSize);
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-            drops[i]++;
-        }
-    }
-    if (!reduceMotion && window.SITE_OVERRIDES.flags && window.SITE_OVERRIDES.flags.rain === true) {
-        rafId = requestAnimationFrame(drawMatrixRain);
-        document.addEventListener('visibilitychange', () => {
-            cancelAnimationFrame(rafId);
-            if (!document.hidden) rafId = requestAnimationFrame(drawMatrixRain);
-        });
-    }
 
     // Theme Switcher Logic
     const colorDots = document.querySelectorAll('.color-dot');

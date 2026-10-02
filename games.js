@@ -6,12 +6,12 @@
   const showBest = k => $('#gameBest').innerHTML = ic('trophy', 16) + ' ' + (best[k] != null ? best[k] : '—');
   const save = (k, v, low) => { if (best[k] == null || (low ? v < best[k] : v > best[k])) { best[k] = v; localStorage.setItem('g_best', JSON.stringify(best)); } showBest(k); };
   const confetti = () => { const cl = ['#3b82f6', '#a855f7', '#22c55e', '#f59e0b', '#ec4899']; for (let i = 0; i < 32; i++) { const s = document.createElement('span'); s.className = 'cf'; s.style.cssText = `left:${Math.random() * 100}vw;background:${cl[i % 5]};--d:${1.5 + Math.random() * 1.5}s;--x:${Math.random() * 200 - 100}px`; document.body.appendChild(s); setTimeout(() => s.remove(), 3200); } };
-  const win = m => { navigator.vibrate && navigator.vibrate([30, 40, 30]); confetti(); box.insertAdjacentHTML('beforeend', `<div class="g-win"><div>${m}</div><button class="btn-glow" id="again">${ic('rotate', 18)} Play again</button></div>`); $('#again').onclick = () => start(cur); };
+  const win = m => { (navigator.vibrate ? navigator.vibrate([30, 40, 30]) : window.haptic && window.haptic()); confetti(); box.insertAdjacentHTML('beforeend', `<div class="g-win"><div>${m}</div><button class="btn-glow" id="again">${ic('rotate', 18)} Play again</button></div>`); $('#again').onclick = () => start(cur); };
 
   const MI = ['zap', 'star', 'target', 'key', 'globe', 'bug', 'keyboard', 'trophy'], TR = () => ic('trophy', 34);
   function memory() {
-    const c = [...MI, ...MI].sort(() => Math.random() - .5);
-    box.innerHTML = `<div class="g-bar"><span>Moves: <b id="mv">0</b></span><span>Find all pairs</span></div><div class="mem">${c.map(x => `<button class="mc" data-k="${x}"><i>${ic('help', 26)}</i><b>${ic(x, 30)}</b></button>`).join('')}</div>`;
+    const ph = (O.gallery || []).filter(x => x.src && x.cat !== 'video').slice(0, 8).map(x => x.src), K = ph.length === 8 ? ph : MI, face = k => ph.length === 8 ? `<img src="${k}" alt="" loading="lazy">` : ic(k, 30), c = [...K, ...K].sort(() => Math.random() - .5);
+    box.innerHTML = `<div class="g-bar"><span>Moves: <b id="mv">0</b></span><span>Find all pairs</span></div><div class="mem">${c.map(x => `<button class="mc" data-k="${x}"><i>${ic('help', 26)}</i><b>${face(x)}</b></button>`).join('')}</div>`;
     let a = null, lock = false, m = 0, done = 0;
     box.querySelectorAll('.mc').forEach(b => b.onclick = () => {
       if (lock || b.classList.contains('on')) return; b.classList.add('on');

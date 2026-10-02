@@ -7,7 +7,6 @@
   if (L.aba) document.querySelectorAll('a[href*="pay.ababank.com"]').forEach(a => a.href = L.aba);
   if (L.facebook) $('.social-btn.facebook').href = L.facebook;
   if (F.games === false) document.querySelectorAll('#iqgame,a[href="#iqgame"]').forEach(e => e.style.display = 'none');
-  if (F.rain !== true) $('#matrixCanvas').style.display = 'none';
   if (O.theme && !localStorage.getItem('site_theme_color')) { $('.color-dot.' + O.theme)?.click(); localStorage.removeItem('site_theme_color'); }
 
   // announcement banner
@@ -26,7 +25,7 @@
     const t = p.querySelector('span'); let r = 0, i = 0, del = 0;
     const step = () => {
       const w = R[r]; i += del ? -1 : 1; t.textContent = w.slice(0, i); let ms = del ? 35 : 70;
-      if (!del && i === w.length) { del = 1; ms = 1400; } else if (del && i === 0) { del = 0; r = (r + 1) % R.length; ms = 300; }
+      if (!del && i === w.length) { del = 1; ms = 1400; } else if (del && i === 1) { del = 0; r = (r + 1) % R.length; ms = 120; }
       setTimeout(step, ms);
     };
     matchMedia('(prefers-reduced-motion: reduce)').matches ? t.textContent = R[0] : step();
@@ -109,7 +108,7 @@
       $('.gal-filter').style.display = 'none'; gl.className = 'gal-empty';
       gl.innerHTML = `${ic('camera', 36)}<p data-i18n="gal_empty">ស្នាដៃកំពុងត្រូវបានរៀបចំ។ ទាក់ទងខ្ញុំដើម្បីមើល Portfolio។</p><a class="btn-glow" href="${tg0}?text=${encodeURIComponent('សួស្តី ខ្ញុំចង់មើល Portfolio')}" target="_blank" rel="noopener" data-i18n="gal_cta">ស្នើសុំមើល Portfolio</a>`;
     } else {
-      gl.innerHTML = items.map(x => `<figure data-cat="${x.cat}"><img src="${x.src}" alt="${x.title || ''}" loading="lazy" decoding="async"><figcaption>${x.title || ''}</figcaption></figure>`).join('');
+      gl.innerHTML = items.map(x => `<figure data-cat="${x.cat}"><img src="${x.src}" alt="${x.title || ''}" loading="lazy" decoding="async"><figcaption>${x.title || ''}${x.desc ? '<small>' + x.desc + '</small>' : ''}</figcaption></figure>`).join('');
       const fl = document.querySelectorAll('.gal-filter [data-f]');
       fl.forEach(b => b.onclick = () => { fl.forEach(x => x.classList.toggle('active', x === b)); gl.querySelectorAll('figure').forEach(f => f.hidden = !(b.dataset.f === 'all' || f.dataset.cat === b.dataset.f)); });
       const glb = document.createElement('div'); glb.className = 'lightbox'; glb.innerHTML = `<img alt=""><button class="modal-x">${ic('x', 22)}</button>`; document.body.append(glb);
@@ -117,4 +116,6 @@
       glb.onclick = () => glb.classList.remove('open');
     }
   }
+  // lite mode for phones / data saver
+  if (matchMedia('(max-width:768px)').matches || (navigator.connection && navigator.connection.saveData)) document.documentElement.classList.add('lite');
 })();
