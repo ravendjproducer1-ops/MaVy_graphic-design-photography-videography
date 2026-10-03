@@ -122,18 +122,47 @@
     const s = $('#projects'); if (s) { s.style.display = 'none'; const pv = s.previousElementSibling; if (pv && pv.classList.contains('kbach')) pv.style.display = 'none'; }
     document.querySelectorAll('a[href="#projects"]').forEach(a => { if (a.closest('nav,.nav-links')) a.style.display = 'none'; else { a.href = '#techstack'; a.dataset.i18n = 'btn_skills'; a.textContent = 'View Skills'; } });
   }
-  // cinematic film-leader loader -> iris reveal -> hero entrance
+  // intro: avatar pulse + name reveal -> split-curtain opens -> hero entrance
   const pl = $('.preloader');
   if (pl) {
     if (matchMedia('(prefers-reduced-motion:reduce)').matches) pl.remove();
     else {
-      pl.innerHTML = '<div class="bg-grain"></div><div class="reel l"></div><div class="reel r"></div><div class="lwrap"><svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/></svg><div class="leader"><b>3</b></div></div><div class="ltitle">' + [...'MA VY'].map((c, i) => `<span style="--i:${i}">${c === ' ' ? '&nbsp;' : c}</span>`).join('') + '</div>';
-      let n = 3; const iv = setInterval(() => { n--; if (n < 1) return clearInterval(iv); pl.querySelector('.leader').innerHTML = `<b>${n}</b>`; }, 430);
-      let done = 0; const finish = () => { if (done) return; done = 1; pl.classList.add('iris'); document.documentElement.classList.add('go'); setTimeout(() => pl.remove(), 1100); };
-      Promise.all([new Promise(r => document.readyState === 'complete' ? r() : addEventListener('load', r)), new Promise(r => setTimeout(r, 1500))]).then(finish);
+      pl.innerHTML = '<div class="cur-t"></div><div class="cur-b"></div><div class="intro"><div class="av"><i></i><i></i><img src="LOGO-2.webp" alt=""></div><h1 class="nm">' + [...'MA VY'].map((c, i) => `<span><em style="--i:${i}">${c === ' ' ? '&nbsp;' : c}</em></span>`).join('') + '</h1><p class="tl">Graphic Design · Photography · Videography</p><div class="pb"><i></i></div></div>';
+      const root = document.documentElement; root.classList.add('lock'); setTimeout(() => root.classList.remove('lock'), 5000);
+      let done = 0; const finish = () => { if (done) return; done = 1; pl.classList.add('open'); root.classList.add('go'); setTimeout(() => { pl.remove(); root.classList.remove('lock'); }, 1200); };
+      Promise.all([new Promise(r => document.readyState === 'complete' ? r() : addEventListener('load', r)), new Promise(r => setTimeout(r, 2000))]).then(finish);
       pl.onclick = finish;
     }
   }
+  // ---- v12: light-painting cursor, focus-pull, timecode HUD ----
+  const calm = matchMedia('(prefers-reduced-motion:reduce)').matches, lite = document.documentElement.classList.contains('lite');
+  if (matchMedia('(hover:hover) and (pointer:fine)').matches && !calm && !lite) {
+    const cv = el('canvas', 'paint'); document.body.append(cv); const cx = cv.getContext('2d'); let w, h, px = -1, py = -1, hue = 200, run = 0, idle = 0;
+    const size = () => { w = cv.width = innerWidth; h = cv.height = innerHeight; }; size(); addEventListener('resize', size);
+    const loop = () => { cx.globalCompositeOperation = 'destination-out'; cx.fillStyle = 'rgba(0,0,0,.08)'; cx.fillRect(0, 0, w, h); cx.globalCompositeOperation = 'source-over'; if (--idle > 0) requestAnimationFrame(loop); else { run = 0; cx.clearRect(0, 0, w, h); } };
+    addEventListener('mousemove', ev => { if (px >= 0) { hue = (hue + 2) % 360; cx.strokeStyle = `hsl(${hue},95%,68%)`; cx.shadowColor = cx.strokeStyle; cx.shadowBlur = 14; cx.lineWidth = 2.5; cx.lineCap = 'round'; cx.beginPath(); cx.moveTo(px, py); cx.lineTo(ev.clientX, ev.clientY); cx.stroke(); } px = ev.clientX; py = ev.clientY; idle = 90; if (!run) { run = 1; requestAnimationFrame(loop); } }, { passive: true });
+    document.addEventListener('mouseleave', () => px = -1);
+  }
+  if (!calm && !lite) {
+    const fo = new IntersectionObserver(es => es.forEach(x => x.target.classList.toggle('defocus', !x.isIntersecting)), { rootMargin: '-15% 0px -15% 0px' });
+    document.querySelectorAll('.techstack-header,.process h3,.process li,.tech-card').forEach(x => { x.classList.add('fp'); fo.observe(x); });
+  }
+  // ---- v13: bokeh lights, giant outline word, scroll hint, ink ripple ----
+  if (!calm && !lite) {
+    const bk = el('div', 'bokeh'), cl = ['#60a5fa', '#a78bfa', '#f472b6', '#fbbf24'];
+    for (let i = 0; i < 14; i++) { const b = el('i'); b.style.cssText = `--s:${30 + Math.random() * 90}px;--x:${Math.random() * 100}vw;--d:${14 + Math.random() * 16}s;--dl:${-Math.random() * 20}s;--c:${cl[i % 4]}`; bk.append(b); }
+    document.body.prepend(bk);
+  }
+  const tsec = $('#techstack'); if (tsec) tsec.prepend(el('div', 'bgword', 'DESIGN · PHOTO · VIDEO'));
+  const hsec = $('.hero-section');
+  if (hsec && !calm) { const sh = el('div', 'scrollhint', '<i></i><span>Scroll</span>'); hsec.append(sh); addEventListener('scroll', () => sh.classList.toggle('gone', scrollY > 80), { passive: true }); }
+  document.addEventListener('click', ev => {
+    const b = ev.target.closest('.btn-glow,.btn-glass,.chip,.social-btn,.g-tab'); if (!b || calm) return;
+    const r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2, s = el('span', 'ripple2');
+    s.style.cssText = `width:${d}px;height:${d}px;left:${ev.clientX - r.left - d / 2}px;top:${ev.clientY - r.top - d / 2}px`; b.append(s); setTimeout(() => s.remove(), 650);
+  });
+  // glows drift with the mouse (PC)
+  if (matchMedia('(hover:hover) and (pointer:fine)').matches) addEventListener('mousemove', ev => { const s = document.documentElement.style; s.setProperty('--mx', (ev.clientX / innerWidth - .5).toFixed(3)); s.setProperty('--my', (ev.clientY / innerHeight - .5).toFixed(3)); }, { passive: true });
   // magnetic buttons (PC) + marquee speeds up while scrolling
   if (matchMedia('(hover:hover) and (pointer:fine)').matches) document.querySelectorAll('.btn-glow,.btn-glass,.social-btn').forEach(b => { b.addEventListener('mousemove', e => { const r = b.getBoundingClientRect(); b.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * .18}px,${(e.clientY - r.top - r.height / 2) * .3}px)`; }); b.addEventListener('mouseleave', () => b.style.transform = ''); });
   const trk = $('.marquee .track'); let ly = scrollY, rate = 1;
