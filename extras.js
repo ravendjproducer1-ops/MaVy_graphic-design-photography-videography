@@ -20,43 +20,17 @@
   // Khmer-inspired diamond dividers
   ['#techstack', '.process', '#projects', '#iqgame', '#contact'].forEach(s => { const e = $(s); if (e) e.before(el('div', 'kbach')); });
 
-  // Widgets: Phnom Penh time, colour of the day, availability
-  const mq = $('.marquee');
-  if (mq) {
-    const d = new Date(), hue = (Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5) * 47) % 360;
-    const f = n => { const k = (n + hue / 30) % 12; return Math.round(255 * (.55 - .315 * Math.max(-1, Math.min(k - 3, 9 - k, 1)))).toString(16).padStart(2, '0'); };
-    const hex = ('#' + [0, 8, 4].map(f).join('')).toUpperCase();
-    mq.after(el('div', 'widgets', `<div class="wg"><small>ភ្នំពេញ</small><b id="wgTime">--:--</b><span>${TOD[0]}</span></div><button class="wg wg-c" id="wgColor" style="--c:${hex}"><small>Color of the day</small><b>${hex}</b><span>tap to copy</span></button><div class="wg"><small>Status</small><b>${O.slots || 'Open'}</b><span>${O.slots ? 'slots left' : (O.status || 'Available for work')}</span></div>`));
-    const tick = () => $('#wgTime').textContent = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Phnom_Penh', hour: '2-digit', minute: '2-digit' }); tick(); setInterval(tick, 15000);
-    $('#wgColor').onclick = () => { navigator.clipboard.writeText(hex); haptic(); toast(hex); };
-  }
-
-  // Dynamic Island
-  const isl = el('div', 'island', `<button class="isl-main"><i class="dot"></i><span>${O.status || 'ទំនេរទទួលការងារ'}</span></button><div class="isl-acts"><button data-a="brief">${ic('pen', 20)}</button><a href="${tg}" target="_blank" rel="noopener">${ic('link', 20)}</a><a href="${aba}" target="_blank" rel="noopener">${ic('wallet', 20)}</a><button data-a="qr">${ic('qr', 20)}</button><button data-a="cam">${ic('camera', 20)}</button><button data-a="share">${ic('up', 20)}</button></div>`);
-  document.body.append(isl);
-  isl.querySelector('.isl-main').onclick = e => { isl.classList.toggle('open'); haptic(); e.stopPropagation(); };
-  document.addEventListener('click', e => { if (!isl.contains(e.target)) isl.classList.remove('open'); });
-  isl.addEventListener('click', e => { const a = e.target.closest('[data-a]'); if (!a) return; isl.classList.remove('open'); haptic(); ({ brief: openBrief, qr: () => $('#qrBtn').click(), cam: camMode, share })[a.dataset.a](); });
   function share() { navigator.share ? navigator.share({ title: document.title, url: base }).catch(() => {}) : navigator.clipboard.writeText(base).then(() => toast('Link copied')); }
   function vcf() { const em = ($('#copyEmailBtn') || { dataset: {} }).dataset.email || 'ravendjproducer.1@gmail.com'; const a = el('a'); a.href = URL.createObjectURL(new Blob([`BEGIN:VCARD\nVERSION:3.0\nFN:Ma Vy\nTITLE:Graphic Designer · Photographer · Videographer\nEMAIL:${em}\nURL:${base}\nURL:${tg}\nURL:${fb}\nEND:VCARD`], { type: 'text/vcard' })); a.download = 'MaVy.vcf'; a.click(); }
-
-  // Control-Center style contact tiles
-  const sb = $('.social-links-box');
-  if (sb) {
-    sb.style.display = 'none';
-    const g = el('div', 'cc-grid'), T = [['link', 'Telegram', tg, 1], ['globe', 'Facebook', fb, 1], ['wallet', 'ABA Pay', aba, 1], ['download', 'Save Contact', 0, 'vcf'], ['up', 'Share', 0, 'share'], ['camera', 'Card', '?card', 0]];
-    g.innerHTML = T.map(([i, l, h, x]) => h ? `<a class="cc-tile" href="${h}" ${x ? 'target="_blank" rel="noopener"' : ''}><span>${ic(i, 26)}</span><b>${l}</b></a>` : `<button class="cc-tile" data-x="${x}"><span>${ic(i, 26)}</span><b>${l}</b></button>`).join('');
-    sb.after(g); g.onclick = e => { haptic(); const b = e.target.closest('[data-x]'); if (b) b.dataset.x === 'vcf' ? vcf() : share(); };
-  }
-
-  // Bottom-sheet swipe to close
-  document.addEventListener('touchstart', e => { const c = e.target.closest('.modal-card'); if (c) c._y = e.touches[0].clientY; }, { passive: true });
-  document.addEventListener('touchend', e => { const c = e.target.closest('.modal-card'); if (c && c._y != null && e.changedTouches[0].clientY - c._y > 90) c.closest('.modal').click(); if (c) c._y = null; });
+  // keep Save Contact + digital Card in the normal social buttons
+  const sbtn = $('.social-btn'); if (sbtn) { const sv = el('button', 'social-btn', 'Save Contact'); sv.onclick = vcf; const cd = el('a', 'social-btn', 'Card'); cd.href = '?card'; sbtn.parentElement.append(sv, cd); }
+  // camera mode button
+  const fw = $('.fab-wrap'); if (fw) { const cb = el('button', 'fab'); cb.title = 'Camera'; cb.innerHTML = ic('camera', 22); cb.onclick = () => { haptic(); camMode(); }; fw.prepend(cb); }
 
   // QR with ?ref= source tracking
   const qa = $('#qrDl') && $('#qrDl').parentElement;
   if (qa && window.QRCode) {
-    const ri = el('input', 'ref-in'); ri.placeholder = 'ref: poster, card, fb…'; qa.before(ri);
+    const sh = el('button', 'btn-glass', ic('up', 16) + ' Share'); sh.onclick = share; qa.append(sh); const ri = el('input', 'ref-in'); ri.placeholder = 'ref: poster, card, fb…'; qa.before(ri);
     ri.oninput = () => { const u = base + (ri.value.trim() ? '?ref=' + encodeURIComponent(ri.value.trim()) : ''); $('#qrBox').innerHTML = ''; new QRCode($('#qrBox'), { text: u, width: 240, height: 240, colorDark: '#0b1020', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H }); $('#qrUrl').textContent = u; };
   }
 
