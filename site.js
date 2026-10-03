@@ -35,11 +35,11 @@
   const fw = document.createElement('div'); fw.className = 'fab-wrap';
   fw.innerHTML = '<button class="fab" id="qrBtn" title="QR">'+ic('qr',22)+'</button><button class="fab" id="topBtn" title="Top">'+ic('up',22)+'</button>'; document.body.append(fw);
   const m = document.createElement('div'); m.className = 'modal';
-  m.innerHTML = '<div class="modal-card"><button class="modal-x">'+ic('x',20)+'</button><h3>QR Code · គេហទំព័រ</h3><div id="qrBox"></div><small id="qrUrl"></small><div class="qr-actions"><button class="btn-glow" id="qrDl">'+ic('download',16)+' PNG</button><button class="btn-glass" id="qrCopy">'+ic('link',16)+' Copy link</button></div></div>'; document.body.append(m);
+  m.innerHTML = '<div class="modal-card"><button class="modal-x">'+ic('x',20)+'</button><h3>Website QR</h3><div id="qrBox"></div><small id="qrUrl"></small><div class="qr-actions"><button class="btn-glow" id="qrDl">'+ic('download',16)+' PNG</button><button class="btn-glass" id="qrCopy">'+ic('link',16)+' Copy link</button></div></div>'; document.body.append(m);
   const url = O.siteUrl || location.href.split('#')[0]; $('#qrUrl').textContent = url; let made = 0;
   const open = o => {
     m.classList.toggle('open', o);
-    if (o && !made && window.QRCode) { new QRCode($('#qrBox'), { text: url, width: 240, height: 240, colorDark: '#0b1020', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H }); made = 1; }
+    if (o && !made && window.QRCode) { new QRCode($('#qrBox'), { text: url, width: 240, height: 240, colorDark: '#0b1020', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); made = 1; }
   };
   $('#qrBtn').onclick = () => open(1); m.querySelector('.modal-x').onclick = () => open(0);
   m.onclick = e => e.target === m && open(0); addEventListener('keydown', e => e.key === 'Escape' && open(0));
@@ -51,7 +51,7 @@
   // preloader
   const pl = document.createElement('div'); pl.className = 'preloader'; pl.innerHTML = '<img src="LOGO-2.webp" alt="" width="84" height="84"><i></i>'; document.body.append(pl);
   const hide = () => { pl.classList.add('off'); setTimeout(() => pl.remove(), 700); };
-  document.readyState === 'complete' ? setTimeout(hide, 300) : addEventListener('load', () => setTimeout(hide, 250)); setTimeout(hide, 3500);
+  document.readyState === 'complete' ? setTimeout(hide, 3000) : addEventListener('load', () => setTimeout(hide, 3000)); setTimeout(hide, 4500);
   // background grid
   const g = document.createElement('div'); g.className = 'bg-grid'; document.body.prepend(g);
   // skills marquee
@@ -85,9 +85,9 @@
   const qc = $('.qr-card');
   if (qc && window.QRCode) {
     const card = document.createElement('div'); card.className = 'qr-card web';
-    card.innerHTML = `<div class="qr-inline" id="qrInline"></div><div><b>QR គេហទំព័រ · Website QR</b><span>Scan to open this website on any phone.</span>${location.protocol === 'file:' && !O.siteUrl ? '<span class="qr-warn">Site មិនទាន់ online · QR នេះប្រើបានតែលើកុំព្យូទ័រនេះ។ បំពេញ Site URL ក្នុង Admin។</span>' : ''}<button class="btn-glass" id="qrDl2">${ic('download', 16)} PNG</button></div>`;
+    card.innerHTML = `<div class="qr-inline" id="qrInline"></div><div><b data-i18n="webqr_title">QR គេហទំព័រ</b><span data-i18n="webqr_desc">Scan to open this website on any phone.</span>${location.protocol === 'file:' && !O.siteUrl ? '<span class="qr-warn">Site មិនទាន់ online · QR នេះប្រើបានតែលើកុំព្យូទ័រនេះ។ បំពេញ Site URL ក្នុង Admin។</span>' : ''}<button class="btn-glass" id="qrDl2">${ic('download', 16)} PNG</button></div>`;
     qc.after(card);
-    new QRCode($('#qrInline'), { text: url, width: 160, height: 160, colorDark: '#0b1020', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+    new QRCode($('#qrInline'), { text: url, width: 160, height: 160, colorDark: '#0b1020', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
     $('#qrDl2').onclick = () => { const c = $('#qrInline canvas'), a = document.createElement('a'); a.href = c ? c.toDataURL('image/png') : $('#qrInline img').src; a.download = 'website-qr.png'; a.click(); };
   }
 

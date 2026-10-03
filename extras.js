@@ -31,7 +31,7 @@
   const qa = $('#qrDl') && $('#qrDl').parentElement;
   if (qa && window.QRCode) {
     const sh = el('button', 'btn-glass', ic('up', 16) + ' Share'); sh.onclick = share; qa.append(sh); const ri = el('input', 'ref-in'); ri.placeholder = 'ref: poster, card, fb…'; qa.before(ri);
-    ri.oninput = () => { const u = base + (ri.value.trim() ? '?ref=' + encodeURIComponent(ri.value.trim()) : ''); $('#qrBox').innerHTML = ''; new QRCode($('#qrBox'), { text: u, width: 240, height: 240, colorDark: '#0b1020', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H }); $('#qrUrl').textContent = u; };
+    ri.oninput = () => { const u = base + (ri.value.trim() ? '?ref=' + encodeURIComponent(ri.value.trim()) : ''); $('#qrBox').innerHTML = ''; new QRCode($('#qrBox'), { text: u, width: 240, height: 240, colorDark: '#0b1020', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); $('#qrUrl').textContent = u; };
   }
 
   // Brief builder + price estimator
@@ -109,6 +109,52 @@
   if (P.has('card')) {
     const cv = el('div', 'cardview', `<div class="cv"><img src="profile.webp" alt=""><h2>Ma Vy</h2><p>Graphic Designer · Photographer · Videographer</p><div class="cv-btns"><a class="btn-glow" href="${tg}">Telegram</a><a class="btn-glass" href="${fb}">Facebook</a><a class="btn-glass" href="${aba}">ABA Pay</a><button class="btn-glass" id="cvv">Save Contact</button><a class="btn-glass" id="cvw" href="${base}">Website</a></div></div>`);
     document.body.append(cv); $('#cvv').onclick = vcf; $('#cvw').onclick = e => { e.preventDefault(); cv.remove(); };
+  }
+  // ---- v9 fixes ----
+  const fb2 = $('.floating-status-badge'); if (fb2) fb2.remove();
+  const gh = $('.social-btn[href*="github.com"]'); if (gh) gh.remove();
+  const sbt = $('.social-btn'); if (sbt) sbt.parentElement.classList.add('soc-grid');
+  const cc2 = $('.contact-card-modern'), q1 = $('.qr-card:not(.web)'), q2 = $('.qr-card.web');
+  if (cc2 && q1 && q2) { const row = el('div', 'qr-row'); row.append(q1, q2); cc2.append(row); }
+  const fw2 = $('.fab-wrap'); let ft;
+  if (fw2) addEventListener('scroll', () => { fw2.classList.add('hide'); clearTimeout(ft); ft = setTimeout(() => fw2.classList.remove('hide'), 700); }, { passive: true });
+  if (!items.length) {
+    const s = $('#projects'); if (s) { s.style.display = 'none'; const pv = s.previousElementSibling; if (pv && pv.classList.contains('kbach')) pv.style.display = 'none'; }
+    document.querySelectorAll('a[href="#projects"]').forEach(a => { if (a.closest('nav,.nav-links')) a.style.display = 'none'; else { a.href = '#techstack'; a.dataset.i18n = 'btn_skills'; a.textContent = 'View Skills'; } });
+  }
+  // cinematic film-leader loader -> iris reveal -> hero entrance
+  const pl = $('.preloader');
+  if (pl) {
+    if (matchMedia('(prefers-reduced-motion:reduce)').matches) pl.remove();
+    else {
+      pl.innerHTML = '<div class="bg-grain"></div><div class="reel l"></div><div class="reel r"></div><div class="lwrap"><svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/></svg><div class="leader"><b>3</b></div></div><div class="ltitle">' + [...'MA VY'].map((c, i) => `<span style="--i:${i}">${c === ' ' ? '&nbsp;' : c}</span>`).join('') + '</div>';
+      let n = 3; const iv = setInterval(() => { n--; if (n < 1) return clearInterval(iv); pl.querySelector('.leader').innerHTML = `<b>${n}</b>`; }, 430);
+      let done = 0; const finish = () => { if (done) return; done = 1; pl.classList.add('iris'); document.documentElement.classList.add('go'); setTimeout(() => pl.remove(), 1100); };
+      Promise.all([new Promise(r => document.readyState === 'complete' ? r() : addEventListener('load', r)), new Promise(r => setTimeout(r, 1500))]).then(finish);
+      pl.onclick = finish;
+    }
+  }
+  // magnetic buttons (PC) + marquee speeds up while scrolling
+  if (matchMedia('(hover:hover) and (pointer:fine)').matches) document.querySelectorAll('.btn-glow,.btn-glass,.social-btn').forEach(b => { b.addEventListener('mousemove', e => { const r = b.getBoundingClientRect(); b.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * .18}px,${(e.clientY - r.top - r.height / 2) * .3}px)`; }); b.addEventListener('mouseleave', () => b.style.transform = ''); });
+  const trk = $('.marquee .track'); let ly = scrollY, rate = 1;
+  if (trk && trk.getAnimations) { const an = trk.getAnimations()[0]; if (an) { addEventListener('scroll', () => { rate = Math.min(8, 1 + Math.abs(scrollY - ly) / 6); ly = scrollY; }, { passive: true }); (function tick() { rate += (1 - rate) * .06; an.playbackRate = rate; requestAnimationFrame(tick); })(); } }
+  // colour-grading playground
+  const gsrc = O.gradeImg || (items.find(x => x.cat !== 'video') || {}).src || 'profile.webp';
+  const LK = [['Original', 'none'], ['Teal & Orange', 'contrast(1.12) saturate(1.35) hue-rotate(-10deg) sepia(.15)'], ['B&W Film', 'grayscale(1) contrast(1.25) brightness(.95)'], ['Cinematic', 'contrast(1.2) saturate(.8) brightness(.92) hue-rotate(-12deg) sepia(.12)'], ['Vintage', 'sepia(.55) contrast(.95) saturate(.9) brightness(1.05)'], ['Golden', 'sepia(.3) saturate(1.4) brightness(1.05) hue-rotate(-15deg)']];
+  const pr0 = $('.process');
+  if (pr0) {
+    const gs = el('section', 'techstack-section grade', `<div class="techstack-header"><h2 data-i18n="grade_title">Color Grading Playground</h2><p data-i18n="grade_desc">Pick a look and drag the slider to compare before / after.</p></div><div class="cmp" style="--p:50%"><img src="${gsrc}" alt="" loading="lazy"><img class="gr" src="${gsrc}" alt="" loading="lazy"><i class="hd"></i><span class="lb a">Before</span><span class="lb b">After</span></div><input class="rng" type="range" min="0" max="100" value="50" aria-label="compare"><div class="chips looks">${LK.map(([n], i) => `<button class="chip ${i === 1 ? 'on' : ''}" data-l="${i}">${n}</button>`).join('')}</div>`);
+    pr0.after(gs); const cmp = gs.querySelector('.cmp'), gr = gs.querySelector('.gr'); gr.style.filter = LK[1][1];
+    gs.querySelector('.rng').oninput = e => cmp.style.setProperty('--p', e.target.value + '%');
+    gs.querySelector('.looks').onclick = e => { const b = e.target.closest('[data-l]'); if (!b) return; gs.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b)); gr.style.filter = LK[b.dataset.l][1]; haptic(); };
+  }
+  // next free date (from Admin busy dates)
+  const busy = new Set(String(O.busyDates || '').split(/[,\s]+/).filter(Boolean)), ymd = d => [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+  if (busy.size) {
+    const d = new Date(); let n = 0; do { d.setDate(d.getDate() + 1); n++; } while (busy.has(ymd(d)) && n < 120);
+    const nf = el('p', 'nextfree', `${ic('check', 16)} <span data-i18n="nextfree">Next free date</span>: <b>${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</b>`);
+    const hcta = $('.hero-cta'); if (hcta) hcta.after(nf);
+    bm.addEventListener('change', ev => { if (ev.target.id === 'bd' && busy.has(ev.target.value)) toast('Booked · ថ្ងៃនេះពេញ'); });
   }
   addEventListener('keydown', e => { if (e.key !== 'Escape') return; bm.classList.remove('open'); closeToday(); const x = $('.vf-x'); if (x) x.click(); });
 })();
