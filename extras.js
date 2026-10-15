@@ -128,8 +128,8 @@
     if (matchMedia('(prefers-reduced-motion:reduce)').matches) pl.remove();
     else {
       pl.innerHTML = '<div class="cur-t"></div><div class="cur-b"></div><div class="intro"><div class="av"><i></i><i></i><img src="LOGO-2.webp" alt=""></div><h1 class="nm">' + [...'MA VY'].map((c, i) => `<span><em style="--i:${i}">${c === ' ' ? '&nbsp;' : c}</em></span>`).join('') + '</h1><p class="tl">Graphic Design · Photography · Videography</p><div class="pb"><i></i></div></div>';
-      const root = document.documentElement; root.classList.add('lock'); setTimeout(() => root.classList.remove('lock'), 5000);
-      let done = 0; const finish = () => { if (done) return; done = 1; pl.classList.add('open'); root.classList.add('go'); setTimeout(() => { pl.remove(); root.classList.remove('lock'); }, 1200); };
+      const root = document.documentElement; root.classList.add('lock'); setTimeout(() => { root.classList.remove('lock'); window.__lenis && window.__lenis.start(); }, 5000);
+      let done = 0; const finish = () => { if (done) return; done = 1; pl.classList.add('open'); root.classList.add('go'); window.__lenis && window.__lenis.start(); window.__heroWords && window.__heroWords(); setTimeout(() => { pl.remove(); root.classList.remove('lock'); }, 1200); };
       Promise.all([new Promise(r => document.readyState === 'complete' ? r() : addEventListener('load', r)), new Promise(r => setTimeout(r, 2000))]).then(finish);
       pl.onclick = finish;
     }
@@ -161,6 +161,49 @@
     const r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2, s = el('span', 'ripple2');
     s.style.cssText = `width:${d}px;height:${d}px;left:${ev.clientX - r.left - d / 2}px;top:${ev.clientY - r.top - d / 2}px`; b.append(s); setTimeout(() => s.remove(), 650);
   });
+  // ---- v18: inertial smooth scroll, hero word reveal, scroll parallax ----
+  {
+    const reduce18 = matchMedia('(prefers-reduced-motion:reduce)').matches, root18 = document.documentElement; let pt18 = 0;
+    addEventListener('scroll', () => { if (pt18) return; pt18 = requestAnimationFrame(() => { pt18 = 0; root18.style.setProperty('--sy', Math.round(scrollY)); }); }, { passive: true });
+    if (!reduce18 && window.Lenis) {
+      const ln = new Lenis({ duration: 1.15, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true, prevent: n => n.closest && n.closest('.td-card,.modal-card') });
+      if (root18.classList.contains('lock')) ln.stop();
+      const tick = t => { ln.raf(t); requestAnimationFrame(tick); }; requestAnimationFrame(tick); window.__lenis = ln;
+      document.addEventListener('click', ev => { const a = ev.target.closest('a[href^="#"]'); if (!a || a.getAttribute('href').length < 2) return; const t = document.querySelector(a.getAttribute('href')); if (t) { ev.preventDefault(); ln.scrollTo(t, { offset: -90 }); } });
+    }
+    const hero18 = $('.hero-title'); let started18 = false;
+    const split18 = node => {
+      const txt = node.textContent; if (!txt.trim() || node.querySelector('.hw')) return;
+      if ((getComputedStyle(node).webkitBackgroundClip || getComputedStyle(node).backgroundClip) === 'text') { node.classList.add('shim'); return; }
+      const km = /[\u1780-\u17FF]/.test(txt); let parts;
+      try { parts = typeof Intl !== 'undefined' && Intl.Segmenter ? [...new Intl.Segmenter(km ? 'km' : 'en', { granularity: 'word' }).segment(txt)].map(x => x.segment) : txt.split(/(\s+)/); } catch (err) { parts = txt.split(/(\s+)/); }
+      if (parts.some(p => /^[\u17B6-\u17D3]/.test(p))) return;
+      const fr = document.createDocumentFragment(); let i = 0;
+      parts.forEach(p => { if (/^\s+$/.test(p)) fr.append(p); else { const w = el('span', 'hw'), n = el('i'); n.style.setProperty('--i', i++); n.textContent = p; w.append(n); fr.append(w); } });
+      node.textContent = ''; node.append(fr);
+    };
+    if (hero18) {
+      const targets = () => { const t = [...hero18.querySelectorAll('[data-i18n]')]; return t.length ? t : [hero18]; };
+      const obs18 = new MutationObserver(() => run18());
+      const run18 = () => { obs18.disconnect(); targets().forEach(split18); obs18.takeRecords(); obs18.observe(hero18, { childList: true, subtree: true, characterData: true }); };
+      window.__heroWords = () => { if (started18 || reduce18) return; started18 = true; run18(); };
+    }
+  }
+  // ---- v19: colour-grading auto demo (sweep + look cycling until the visitor takes over) ----
+  {
+    const g19 = $('.grade');
+    if (g19 && !matchMedia('(prefers-reduced-motion:reduce)').matches) {
+      const cmp = g19.querySelector('.cmp'), rng = g19.querySelector('.rng'), looks = g19.querySelector('.looks'), chips = [...looks.querySelectorAll('.chip')];
+      let user = false, auto = false, vis = false, li = 1, swept = false;
+      const mark = () => { if (!auto) user = true; };
+      rng.addEventListener('pointerdown', mark); rng.addEventListener('input', mark); looks.addEventListener('click', mark);
+      const ease = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+      const set = v => { cmp.style.setProperty('--p', v + '%'); rng.value = v; };
+      const sweep = () => { const t0 = performance.now(); const f = now => { if (user) return; const k = Math.min(1, (now - t0) / 3000); set(Math.round(k < .6 ? 95 - 90 * ease(k / .6) : 5 + 45 * ease((k - .6) / .4))); if (k < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); };
+      new IntersectionObserver(es => { vis = es[0].isIntersecting; if (vis && !swept) { swept = true; sweep(); } }, { threshold: .5 }).observe(g19);
+      setInterval(() => { if (user || !vis || !swept) return; li = li % (chips.length - 1) + 1; auto = true; chips[li].click(); auto = false; }, 3400);
+    }
+  }
   // glows drift with the mouse (PC)
   if (matchMedia('(hover:hover) and (pointer:fine)').matches) addEventListener('mousemove', ev => { const s = document.documentElement.style; s.setProperty('--mx', (ev.clientX / innerWidth - .5).toFixed(3)); s.setProperty('--my', (ev.clientY / innerHeight - .5).toFixed(3)); }, { passive: true });
   // magnetic buttons (PC) + marquee speeds up while scrolling
@@ -168,11 +211,11 @@
   const trk = $('.marquee .track'); let ly = scrollY, rate = 1;
   if (trk && trk.getAnimations) { const an = trk.getAnimations()[0]; if (an) { addEventListener('scroll', () => { rate = Math.min(8, 1 + Math.abs(scrollY - ly) / 6); ly = scrollY; }, { passive: true }); (function tick() { rate += (1 - rate) * .06; an.playbackRate = rate; requestAnimationFrame(tick); })(); } }
   // colour-grading playground
-  const gsrc = O.gradeImg || (items.find(x => x.cat !== 'video') || {}).src || 'profile.webp';
-  const LK = [['Original', 'none'], ['Teal & Orange', 'contrast(1.12) saturate(1.35) hue-rotate(-10deg) sepia(.15)'], ['B&W Film', 'grayscale(1) contrast(1.25) brightness(.95)'], ['Cinematic', 'contrast(1.2) saturate(.8) brightness(.92) hue-rotate(-12deg) sepia(.12)'], ['Vintage', 'sepia(.55) contrast(.95) saturate(.9) brightness(1.05)'], ['Golden', 'sepia(.3) saturate(1.4) brightness(1.05) hue-rotate(-15deg)']];
+  const gsrc = O.gradeImg || 'grade-sample.webp';
+  const LK = [['Original', 'none'], ['Teal & Orange', 'contrast(1.12) saturate(1.35) hue-rotate(-10deg) sepia(.15)'], ['B&W Film', 'grayscale(1) contrast(1.25) brightness(.95)'], ['Cinematic', 'contrast(1.2) saturate(.8) brightness(.92) hue-rotate(-12deg) sepia(.12)'], ['Vintage', 'sepia(.55) contrast(.95) saturate(.9) brightness(1.05)'], ['Golden', 'sepia(.3) saturate(1.4) brightness(1.05) hue-rotate(-15deg)'], ['Fresh', 'saturate(1.5) contrast(1.08) brightness(1.05) hue-rotate(-6deg)'], ['Moody', 'contrast(1.25) saturate(.7) brightness(.8) sepia(.15)']];
   const pr0 = $('.process');
   if (pr0) {
-    const gs = el('section', 'techstack-section grade', `<div class="techstack-header"><h2 data-i18n="grade_title">Color Grading Playground</h2><p data-i18n="grade_desc">Pick a look and drag the slider to compare before / after.</p></div><div class="cmp" style="--p:50%"><img src="${gsrc}" alt="" loading="lazy"><img class="gr" src="${gsrc}" alt="" loading="lazy"><i class="hd"></i><span class="lb a">Before</span><span class="lb b">After</span></div><input class="rng" type="range" min="0" max="100" value="50" aria-label="compare"><div class="chips looks">${LK.map(([n], i) => `<button class="chip ${i === 1 ? 'on' : ''}" data-l="${i}">${n}</button>`).join('')}</div>`);
+    const gs = el('section', 'techstack-section grade', `<div class="techstack-header"><h2 data-i18n="grade_title">Color Grading Playground</h2><p data-i18n="grade_desc">Pick a look and drag the slider to compare before / after.</p></div><div class="cmp" style="--p:50%"><img src="${gsrc}" alt="" loading="lazy"><img class="gr" src="${gsrc}" alt="" loading="lazy"><i class="hd"></i><span class="lb a">Before</span><span class="lb b">After</span></div><input class="rng" type="range" min="0" max="100" value="50" aria-label="compare">${O.gradeImg ? '' : '<small class="credit">Photo: Alleksana / Pexels</small>'}<div class="chips looks">${LK.map(([n], i) => `<button class="chip ${i === 1 ? 'on' : ''}" data-l="${i}">${n}</button>`).join('')}</div>`);
     pr0.after(gs); const cmp = gs.querySelector('.cmp'), gr = gs.querySelector('.gr'); gr.style.filter = LK[1][1];
     gs.querySelector('.rng').oninput = e => cmp.style.setProperty('--p', e.target.value + '%');
     gs.querySelector('.looks').onclick = e => { const b = e.target.closest('[data-l]'); if (!b) return; gs.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b)); gr.style.filter = LK[b.dataset.l][1]; haptic(); };

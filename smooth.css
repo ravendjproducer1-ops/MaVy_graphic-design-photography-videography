@@ -370,3 +370,34 @@ html.lock,html.lock body{overflow:hidden!important}
   @keyframes wipe{from{clip-path:inset(10% 7% 10% 7% round 36px)}to{clip-path:inset(0 0 0 0 round 36px)}}
 }
 @media(max-width:768px){.scrollhint{display:none}}
+
+/* ---- v18: smoother, springier, deeper motion ---- */
+html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!important}.lenis.lenis-stopped{overflow:hidden}.lenis.lenis-scrolling iframe{pointer-events:none}
+.hw{display:inline-block;overflow:hidden;vertical-align:bottom;padding:.06em 0 .16em;margin:-.06em 0 -.16em}
+.hw>i{display:inline-block;font-style:normal;transform:translateY(118%);animation:hwup .95s var(--ease) forwards;animation-delay:calc(var(--i)*85ms + .1s)}
+@keyframes hwup{to{transform:none}}
+.go .hero-title{animation:none}
+.shim{animation:shimh 6s ease-in-out infinite alternate}@keyframes shimh{to{filter:hue-rotate(45deg) saturate(1.2)}}
+.hero-image-box{translate:0 calc(var(--sy,0)*-.07px)}
+.ambient-glow{translate:calc(var(--mx,0)*34px) calc(var(--my,0)*34px + var(--sy,0)*-.05px)}.glow-2{translate:calc(var(--mx,0)*-46px) calc(var(--my,0)*-30px + var(--sy,0)*-.09px)}
+:root{--spring:linear(0,.009,.035 2.1%,.141,.281 6.7%,.723 12.9%,.938 16.7%,1.017,1.077,1.121,1.149 24.3%,1.159,1.163,1.161,1.154 29.9%,1.129 32.8%,1.051 39.6%,1.017 43.1%,.991,.977 51%,.974 53.8%,.975 57.1%,.997 69.8%,1.003 76.9%,1)}
+@supports (transition-timing-function:linear(0,1)){
+  .tech-card,.btn-glow,.btn-glass,.social-btn,.chip{transition:transform .45s var(--ease),border-color .3s,box-shadow .3s,background .3s,translate .7s var(--spring),scale .7s var(--spring)}
+  .tech-card:hover{translate:0 -7px;scale:1.025}.btn-glow:hover,.btn-glass:hover,.social-btn:hover,.chip:hover{scale:1.06}.btn-glow:active,.btn-glass:active,.social-btn:active,.chip:active{scale:.95}
+}
+@supports (animation-timeline:view()){
+  .hero-section{animation:heroout linear both;animation-timeline:view();animation-range:exit 10% exit 90%}
+  @keyframes heroout{to{scale:.94;translate:0 -24px}}
+  .bento-box,.techstack-section,.iq-game-card,.contact-card-modern{animation-name:wipe2}
+  @keyframes wipe2{from{clip-path:inset(10% 7% 10% 7% round 36px);translate:0 60px;scale:.95}}
+}
+@media(prefers-reduced-motion:reduce){.hw>i{transform:none;animation:none}.hero-section,.bento-box,.techstack-section,.iq-game-card,.contact-card-modern{animation:none}}
+
+/* ---- v19: colour-grading photo + extra motion ---- */
+.grade .cmp{aspect-ratio:3/2}
+.cmp img{animation:kb 16s ease-in-out infinite alternate}@keyframes kb{to{scale:1.07}}
+.credit{display:block;text-align:center;color:var(--text-muted);font-size:.7rem;margin-bottom:.8rem}
+.hero-image-box .image-frame img{scale:calc(1 + var(--sy,0)*.00012)}
+.tech-card{overflow:hidden}.tech-card::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.14) 50%,transparent 65%);translate:-120% 0;transition:translate .9s var(--ease);pointer-events:none}.tech-card:hover::after{translate:120% 0}
+.techstack-header h2::after{content:'';display:block;width:72px;height:3px;margin:.7rem auto 0;border-radius:2px;background:linear-gradient(90deg,var(--accent-color),var(--accent-secondary))}
+@supports (animation-timeline:view()){.techstack-header h2::after{animation:ulx linear both;animation-timeline:view();animation-range:entry 20% entry 80%}@keyframes ulx{from{scale:0 1;opacity:0}}}
