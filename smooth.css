@@ -401,3 +401,12 @@ html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!
 .tech-card{overflow:hidden}.tech-card::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.14) 50%,transparent 65%);translate:-120% 0;transition:translate .9s var(--ease);pointer-events:none}.tech-card:hover::after{translate:120% 0}
 .techstack-header h2::after{content:'';display:block;width:72px;height:3px;margin:.7rem auto 0;border-radius:2px;background:linear-gradient(90deg,var(--accent-color),var(--accent-secondary))}
 @supports (animation-timeline:view()){.techstack-header h2::after{animation:ulx linear both;animation-timeline:view();animation-range:entry 20% entry 80%}@keyframes ulx{from{scale:0 1;opacity:0}}}
+
+/* ---- v21: ambient glow, picks, send-this-look ---- */
+.cmpw{position:relative;max-width:640px;margin:1.5rem auto 1rem}.cmpw .cmp{margin:0;max-width:none;position:relative;z-index:1}
+.amb{position:absolute;left:-6%;top:-10%;width:112%;height:120%;object-fit:cover;opacity:.55;pointer-events:none;z-index:0;transition:filter .8s var(--ease)}
+.picks{max-width:640px;margin:0 auto 1rem;text-align:center}.picks small{display:block;color:var(--text-muted);font-size:.72rem;margin-bottom:.5rem}.pk{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;min-height:34px}
+.pkc{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .7rem .3rem .35rem;border-radius:999px;border:1px solid var(--glass-b);background:rgba(255,255,255,.07);color:#e5e7eb;font:600 .72rem monospace;cursor:pointer;animation:fadeUp .4s var(--ease)}.pkc i{width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.4)}
+.pdot{position:absolute;width:26px;height:26px;margin:-13px;border-radius:50%;border:2px solid #fff;background:var(--c);box-shadow:0 0 0 2px rgba(0,0,0,.4);animation:pdot .9s var(--ease) forwards;pointer-events:none}
+@keyframes pdot{0%{transform:scale(.3);opacity:0}30%{transform:scale(1.2);opacity:1}100%{transform:scale(1);opacity:0}}
+.sendlook{text-align:center;margin-top:.4rem}.sendlook a{display:inline-flex;align-items:center;gap:.5rem;text-decoration:none;padding:.8rem 1.6rem}

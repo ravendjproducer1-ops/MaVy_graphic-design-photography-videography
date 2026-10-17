@@ -189,21 +189,6 @@
       window.__heroWords = () => { if (started18 || reduce18) return; started18 = true; run18(); };
     }
   }
-  // ---- v19: colour-grading auto demo (sweep + look cycling until the visitor takes over) ----
-  {
-    const g19 = $('.grade');
-    if (g19 && !matchMedia('(prefers-reduced-motion:reduce)').matches) {
-      const cmp = g19.querySelector('.cmp'), rng = g19.querySelector('.rng'), looks = g19.querySelector('.looks'), chips = [...looks.querySelectorAll('.chip')];
-      let user = false, auto = false, vis = false, li = 1, swept = false;
-      const mark = () => { if (!auto) user = true; };
-      rng.addEventListener('pointerdown', mark); rng.addEventListener('input', mark); looks.addEventListener('click', mark);
-      const ease = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
-      const set = v => { cmp.style.setProperty('--p', v + '%'); rng.value = v; };
-      const sweep = () => { const t0 = performance.now(); const f = now => { if (user) return; const k = Math.min(1, (now - t0) / 3000); set(Math.round(k < .6 ? 95 - 90 * ease(k / .6) : 5 + 45 * ease((k - .6) / .4))); if (k < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); };
-      new IntersectionObserver(es => { vis = es[0].isIntersecting; if (vis && !swept) { swept = true; sweep(); } }, { threshold: .5 }).observe(g19);
-      setInterval(() => { if (user || !vis || !swept) return; li = li % (chips.length - 1) + 1; auto = true; chips[li].click(); auto = false; }, 3400);
-    }
-  }
   // glows drift with the mouse (PC)
   if (matchMedia('(hover:hover) and (pointer:fine)').matches) addEventListener('mousemove', ev => { const s = document.documentElement.style; s.setProperty('--mx', (ev.clientX / innerWidth - .5).toFixed(3)); s.setProperty('--my', (ev.clientY / innerHeight - .5).toFixed(3)); }, { passive: true });
   // magnetic buttons (PC) + marquee speeds up while scrolling
@@ -227,6 +212,49 @@
     const nf = el('p', 'nextfree', `${ic('check', 16)} <span data-i18n="nextfree">Next free date</span>: <b>${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</b>`);
     const hcta = $('.hero-cta'); if (hcta) hcta.after(nf);
     bm.addEventListener('change', ev => { if (ev.target.id === 'bd' && busy.has(ev.target.value)) toast('Booked · ថ្ងៃនេះពេញ'); });
+  }
+  // ---- v19: colour-grading auto demo (sweep + look cycling until the visitor takes over) ----
+  {
+    const g19 = $('.grade');
+    if (g19 && !matchMedia('(prefers-reduced-motion:reduce)').matches) {
+      const cmp = g19.querySelector('.cmp'), rng = g19.querySelector('.rng'), looks = g19.querySelector('.looks'), chips = [...looks.querySelectorAll('.chip')];
+      let user = false, auto = false, vis = false, li = 1, swept = false;
+      const mark = () => { if (!auto) user = true; };
+      rng.addEventListener('pointerdown', mark); rng.addEventListener('input', mark); looks.addEventListener('click', mark);
+      const ease = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+      const set = v => { cmp.style.setProperty('--p', v + '%'); rng.value = v; };
+      const sweep = () => { const t0 = performance.now(); const f = now => { if (user) return; const k = Math.min(1, (now - t0) / 3000); set(Math.round(k < .6 ? 95 - 90 * ease(k / .6) : 5 + 45 * ease((k - .6) / .4))); if (k < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); };
+      new IntersectionObserver(es => { vis = es[0].isIntersecting; if (vis && !swept) { swept = true; sweep(); } }, { threshold: .5 }).observe(g19);
+      setInterval(() => { if (user || !vis || !swept) return; li = li % (chips.length - 1) + 1; auto = true; chips[li].click(); auto = false; }, 3400);
+    }
+  }
+  // ---- v21: ambient glow, "send this look", eyedropper (inside the colour-grading section) ----
+  {
+    const gs21 = $('.grade');
+    if (gs21) {
+      const cmp = gs21.querySelector('.cmp'), gr = gs21.querySelector('.gr'), looks = gs21.querySelector('.looks');
+      const wrap = el('div', 'cmpw'), amb = el('img', 'amb'); amb.src = gsrc; amb.alt = ''; amb.setAttribute('aria-hidden', 'true'); cmp.before(wrap); wrap.append(amb, cmp);
+      const sync = () => { amb.style.filter = 'blur(38px) saturate(1.7) ' + (gr.style.filter && gr.style.filter !== 'none' ? gr.style.filter : ''); };
+      new MutationObserver(sync).observe(gr, { attributes: true, attributeFilter: ['style'] }); sync();
+      const row = el('div', 'picks', '<small>Tap the photo to pick colours</small><div class="pk"></div>'), pk = row.querySelector('.pk');
+      const send = el('div', 'sendlook', `<a class="btn-glow" id="sendLook" target="_blank" rel="noopener">${ic('link', 16)} <span>Send this look to Ma Vy</span></a>`); looks.after(row); row.after(send);
+      const upd = () => { const c = looks.querySelector('.chip.on'), n = c ? c.textContent : 'Original'; $('#sendLook').href = `${tg}?text=${encodeURIComponent('សួស្តី ខ្ញុំចូលចិត្តស្ទីលពណ៌ «' + n + '» ចង់បានបែបនេះសម្រាប់ស្នាដៃរបស់ខ្ញុំ')}`; };
+      looks.addEventListener('click', upd); upd();
+      let cvs, ctx, imP; cmp.style.cursor = 'crosshair';
+      const prep = () => new Promise(res => { const im = new Image(); im.onload = () => { cvs = document.createElement('canvas'); cvs.width = 500; cvs.height = Math.round(500 * im.naturalHeight / im.naturalWidth); ctx = cvs.getContext('2d', { willReadFrequently: true }); res(im); }; im.onerror = () => res(null); im.src = gsrc; });
+      cmp.addEventListener('click', async ev => {
+        const r = cmp.getBoundingClientRect(), fx = (ev.clientX - r.left) / r.width, fy = (ev.clientY - r.top) / r.height, after = fx * 100 > parseFloat(cmp.style.getPropertyValue('--p') || '50');
+        try {
+          imP = imP || prep(); const im = await imP; if (!im) throw 0;
+          ctx.filter = after && 'filter' in ctx ? (gr.style.filter || 'none') : 'none'; ctx.clearRect(0, 0, cvs.width, cvs.height); ctx.drawImage(im, 0, 0, cvs.width, cvs.height);
+          const d = ctx.getImageData(Math.min(cvs.width - 1, fx * cvs.width | 0), Math.min(cvs.height - 1, fy * cvs.height | 0), 1, 1).data;
+          const hex = '#' + [d[0], d[1], d[2]].map(v => v.toString(16).padStart(2, '0')).join('').toUpperCase();
+          const b = el('button', 'pkc', `<i style="background:${hex}"></i>${hex}`); b.onclick = () => { navigator.clipboard.writeText(hex); toast('Copied ' + hex); }; pk.prepend(b); while (pk.children.length > 6) pk.lastChild.remove();
+          const dot = el('i', 'pdot'); dot.style.cssText = `left:${fx * 100}%;top:${fy * 100}%;--c:${hex}`; cmp.append(dot); setTimeout(() => dot.remove(), 900);
+          navigator.clipboard.writeText(hex); toast('Picked ' + hex); haptic();
+        } catch (err) { toast('Eyedropper works on the online site'); }
+      });
+    }
   }
   addEventListener('keydown', e => { if (e.key !== 'Escape') return; bm.classList.remove('open'); closeToday(); const x = $('.vf-x'); if (x) x.click(); });
 })();
