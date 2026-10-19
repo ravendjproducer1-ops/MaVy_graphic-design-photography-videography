@@ -251,10 +251,73 @@
           const hex = '#' + [d[0], d[1], d[2]].map(v => v.toString(16).padStart(2, '0')).join('').toUpperCase();
           const b = el('button', 'pkc', `<i style="background:${hex}"></i>${hex}`); b.onclick = () => { navigator.clipboard.writeText(hex); toast('Copied ' + hex); }; pk.prepend(b); while (pk.children.length > 6) pk.lastChild.remove();
           const dot = el('i', 'pdot'); dot.style.cssText = `left:${fx * 100}%;top:${fy * 100}%;--c:${hex}`; cmp.append(dot); setTimeout(() => dot.remove(), 900);
-          navigator.clipboard.writeText(hex); toast('Picked ' + hex); haptic();
+          navigator.clipboard.writeText(hex); toast('Picked ' + hex); haptic(); document.dispatchEvent(new CustomEvent('mv:pick', { detail: hex }));
         } catch (err) { toast('Eyedropper works on the online site'); }
       });
     }
+  }
+  // ---- v22: site theme from the photo, loupe, live histogram, pinned scrollytelling, calm mode ----
+  {
+    const T = window.MVT, g22 = $('.grade');
+    if (T && g22) {
+      const body = document.body, looks = g22.querySelector('.looks'), chips = [...looks.querySelectorAll('.chip')];
+      const themed = el('button', 'btn-glass themed', `${ic('rotate', 16)} Reset site theme`); g22.querySelector('.sendlook').append(themed);
+      const apply = hex => {
+        if (!hex) { ['--accent-color', '--accent-secondary', '--accent-glow'].forEach(k => body.style.removeProperty(k)); themed.classList.remove('on'); return; }
+        const t = T.theme(hex); body.style.setProperty('--accent-color', t.a); body.style.setProperty('--accent-secondary', t.b); body.style.setProperty('--accent-glow', T.glow(t.a)); themed.classList.add('on');
+      };
+      themed.onclick = () => apply(null);
+      looks.addEventListener('click', ev => { if (!ev.isTrusted && !window.__mvTest) return; const i = chips.findIndex(c => c.classList.contains('on')); apply(i <= 0 ? null : T.PAL[i]); });
+      document.addEventListener('mv:pick', ev => apply(ev.detail));
+      document.querySelectorAll('.color-dot').forEach(d => d.addEventListener('click', () => apply(null)));
+
+      // loupe (PC)
+      const cmp = g22.querySelector('.cmp'), gr = g22.querySelector('.gr');
+      if (matchMedia('(hover:hover) and (pointer:fine)').matches && !matchMedia('(prefers-reduced-motion:reduce)').matches) {
+        const lens = el('div', 'loupe', '<span></span>'); lens.style.backgroundImage = `url('${gsrc}')`; cmp.append(lens);
+        cmp.addEventListener('pointerenter', () => lens.classList.add('on')); cmp.addEventListener('pointerleave', () => lens.classList.remove('on'));
+        cmp.addEventListener('pointermove', ev => {
+          if (ev.pointerType && ev.pointerType !== 'mouse') return; const r = cmp.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top, after = x / r.width * 100 > parseFloat(cmp.style.getPropertyValue('--p') || '50'), Z = 3;
+          lens.style.left = x + 'px'; lens.style.top = y + 'px'; lens.style.backgroundSize = `${r.width * Z}px ${r.height * Z}px`; lens.style.backgroundPosition = `${-(x * Z - 64)}px ${-(y * Z - 64)}px`;
+          lens.style.filter = after ? (gr.style.filter || 'none') : 'none'; const c = looks.querySelector('.chip.on'); lens.firstChild.textContent = (after && c ? c.textContent : 'Before') + ' · 3×';
+        });
+      }
+
+      // live RGB histogram
+      const box = el('div', 'histo', '<canvas width="320" height="90"></canvas><small>RGB histogram</small>'), cv = box.querySelector('canvas'), note = box.querySelector('small'), c2 = cv.getContext('2d');
+      g22.querySelector('.cmpw').after(box);
+      let cur = [0, 1, 2].map(() => new Array(64).fill(0)), tgt = cur, raf = 0, imgEl, sc, sctx, dead = false;
+      const draw = () => { c2.clearRect(0, 0, 320, 90); [['#ef4444', 0], ['#22c55e', 1], ['#3b82f6', 2]].forEach(([col, ch]) => { const a = cur[ch], w = 320 / (a.length - 1); c2.beginPath(); c2.moveTo(0, 90); a.forEach((v, i) => c2.lineTo(i * w, 90 - v * 84)); c2.lineTo(320, 90); c2.closePath(); c2.globalCompositeOperation = 'lighter'; c2.fillStyle = col + '55'; c2.fill(); c2.strokeStyle = col; c2.lineWidth = 1.5; c2.stroke(); c2.globalCompositeOperation = 'source-over'; }); };
+      const anim = () => { let mv = false; cur = cur.map((a, ch) => a.map((v, i) => { const d = tgt[ch][i] - v; if (Math.abs(d) > .002) mv = true; return v + d * .18; })); draw(); raf = mv ? requestAnimationFrame(anim) : 0; };
+      const load = () => new Promise(res => { const im = new Image(); im.onload = () => { sc = document.createElement('canvas'); sc.width = 192; sc.height = Math.round(192 * im.naturalHeight / im.naturalWidth); sctx = sc.getContext('2d', { willReadFrequently: true }); res(im); }; im.onerror = () => res(null); im.src = gsrc; });
+      const compute = async f => {
+        if (dead) return; try {
+          imgEl = imgEl || await load(); if (!imgEl) throw 0; const canF = 'filter' in sctx; sctx.filter = canF ? f : 'none'; sctx.clearRect(0, 0, sc.width, sc.height); sctx.drawImage(imgEl, 0, 0, sc.width, sc.height);
+          tgt = T.hist(sctx.getImageData(0, 0, sc.width, sc.height).data); note.textContent = canF || f === 'none' ? 'RGB histogram' : 'RGB histogram (original - live look needs a newer browser)'; if (!raf) raf = requestAnimationFrame(anim);
+        } catch (err) { dead = true; box.remove(); }
+      };
+      compute('none'); looks.addEventListener('click', () => { const i = chips.findIndex(c => c.classList.contains('on')); compute(LK[Math.max(0, i)][1]); });
+    }
+
+    // pinned scrollytelling for the skills (desktop only; the card grid stays on phones)
+    const cards = [...document.querySelectorAll('#techstack .tech-card')];
+    if (cards.length >= 3 && matchMedia('(min-width:900px)').matches && !matchMedia('(prefers-reduced-motion:reduce)').matches) {
+      const GR = [['#f43f5e', '#a855f7'], ['#3b82f6', '#06b6d4'], ['#f59e0b', '#ef4444'], ['#22c55e', '#06b6d4']];
+      const data = cards.map((c, i) => { const ic0 = c.querySelector('[data-ic]'); return { t: c.querySelector('h4').textContent, items: c.querySelector('.tech-info span').textContent.split('·').map(s => s.trim()).filter(Boolean), icon: ic0 ? ic0.dataset.ic : 'zap', href: (c.querySelector('.card-cta') || {}).href || tg, g: GR[i % 4] }; }), n = data.length;
+      const sec = el('section', 'scrolly', `<div class="sticky"><div class="slides">${data.map((d, i) => `<div class="s" data-k="${i}"><span class="num">0${i + 1} / 0${n}</span><h3>${d.t}</h3><ul>${d.items.map(x => `<li>${x}</li>`).join('')}</ul><a class="btn-glow" href="${d.href}" target="_blank" rel="noopener">${ic('link', 16)} Let's talk</a></div>`).join('')}</div><div class="sv">${data.map((d, i) => `<div class="v" data-k="${i}" style="--c1:${d.g[0]};--c2:${d.g[1]}"><div class="orb"></div><div class="vi">${ic(d.icon, 72)}</div>${d.items.map((x, j) => `<span class="pl p${j}">${x}</span>`).join('')}</div>`).join('')}</div><div class="dots">${data.map((_, i) => `<i data-k="${i}"></i>`).join('')}</div></div>`);
+      sec.style.setProperty('--n', n); $('#techstack').after(sec); $('#techstack .tech-grid').style.display = 'none';
+      let ticking = 0, last = -1;
+      const upd = () => { ticking = 0; const r = sec.getBoundingClientRect(), total = Math.max(1, r.height - innerHeight), p = Math.max(0, Math.min(.9999, -r.top / total)), k = Math.min(n - 1, p * n | 0); if (k === last) return; last = k; sec.querySelectorAll('.s,.v,.dots i').forEach(x => { const i = +x.dataset.k; x.classList.toggle('on', i === k); x.classList.toggle('before', i < k); x.classList.toggle('after', i > k); }); };
+      addEventListener('scroll', () => { if (!ticking) ticking = requestAnimationFrame(upd); }, { passive: true }); addEventListener('resize', upd); upd();
+      sec.querySelector('.dots').onclick = ev => { const d = ev.target.closest('i'); if (!d) return; const r = sec.getBoundingClientRect(), y = scrollY + r.top + (+d.dataset.k + .5) / n * Math.max(1, r.height - innerHeight); window.__lenis ? window.__lenis.scrollTo(y) : scrollTo({ top: y, behavior: 'smooth' }); };
+    }
+
+    // calm mode (turns the heavy effects off; remembered, and on by default with Data Saver)
+    const fwc = $('.fab-wrap'), root22 = document.documentElement; let cb;
+    const stc = localStorage.getItem('mv_calm'), on0 = stc === null ? !!(navigator.connection && navigator.connection.saveData) : stc === '1';
+    const setCalm = v => { root22.classList.toggle('calm', v); localStorage.setItem('mv_calm', v ? '1' : '0'); if (cb) cb.classList.toggle('on', v); };
+    if (fwc) { cb = el('button', 'fab', ic('sliders', 20)); cb.title = 'Calm mode (fewer effects)'; cb.onclick = () => { setCalm(!root22.classList.contains('calm')); toast(root22.classList.contains('calm') ? 'Calm mode on' : 'Calm mode off'); }; fwc.prepend(cb); }
+    setCalm(on0);
   }
   addEventListener('keydown', e => { if (e.key !== 'Escape') return; bm.classList.remove('open'); closeToday(); const x = $('.vf-x'); if (x) x.click(); });
 })();
