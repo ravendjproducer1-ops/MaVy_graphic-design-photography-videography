@@ -23,9 +23,7 @@
   function share() { navigator.share ? navigator.share({ title: document.title, url: base }).catch(() => {}) : navigator.clipboard.writeText(base).then(() => toast('Link copied')); }
   function vcf() { const em = ($('#copyEmailBtn') || { dataset: {} }).dataset.email || 'ravendjproducer.1@gmail.com'; const a = el('a'); a.href = URL.createObjectURL(new Blob([`BEGIN:VCARD\nVERSION:3.0\nFN:Ma Vy\nTITLE:Graphic Designer · Photographer · Videographer\nEMAIL:${em}\nURL:${base}\nURL:${tg}\nURL:${fb}\nEND:VCARD`], { type: 'text/vcard' })); a.download = 'MaVy.vcf'; a.click(); }
   // keep Save Contact + digital Card in the normal social buttons
-  const sbtn = $('.social-btn'); if (sbtn) { const sv = el('button', 'social-btn', 'Save Contact'); sv.onclick = vcf; const cd = el('a', 'social-btn', 'Card'); cd.href = '?card'; sbtn.parentElement.append(sv, cd); }
-  // camera mode button
-  const fw = $('.fab-wrap'); if (fw) { const cb = el('button', 'fab'); cb.title = 'Camera'; cb.innerHTML = ic('camera', 22); cb.onclick = () => { haptic(); camMode(); }; fw.prepend(cb); }
+  const sbtn = $('.social-btn'); if (sbtn) { const sv = el('button', 'social-btn', 'Save Contact'); sv.onclick = vcf; const cd = el('a', 'social-btn', 'Card'); cd.href = '?card'; sbtn.parentElement.append(sv); }
 
   // QR with ?ref= source tracking
   const qa = $('#qrDl') && $('#qrDl').parentElement;
@@ -125,34 +123,18 @@
   // intro: avatar pulse + name reveal -> split-curtain opens -> hero entrance
   const pl = $('.preloader');
   if (pl) {
-    if (matchMedia('(prefers-reduced-motion:reduce)').matches) pl.remove();
+    if (matchMedia('(prefers-reduced-motion:reduce)').matches || sessionStorage.getItem('mv_seen')) { pl.remove(); document.documentElement.classList.add('go'); setTimeout(() => window.__heroWords && window.__heroWords(), 0); }
     else {
       pl.innerHTML = '<div class="cur-t"></div><div class="cur-b"></div><div class="intro"><div class="av"><i></i><i></i><img src="LOGO-2.webp" alt=""></div><h1 class="nm">' + [...'MA VY'].map((c, i) => `<span><em style="--i:${i}">${c === ' ' ? '&nbsp;' : c}</em></span>`).join('') + '</h1><p class="tl">Graphic Design · Photography · Videography</p><div class="pb"><i></i></div></div>';
       const root = document.documentElement; root.classList.add('lock'); setTimeout(() => { root.classList.remove('lock'); window.__lenis && window.__lenis.start(); }, 5000);
-      let done = 0; const finish = () => { if (done) return; done = 1; pl.classList.add('open'); root.classList.add('go'); window.__lenis && window.__lenis.start(); window.__heroWords && window.__heroWords(); setTimeout(() => { pl.remove(); root.classList.remove('lock'); }, 1200); };
+      let done = 0; const finish = () => { if (done) return; done = 1; sessionStorage.setItem('mv_seen', '1'); pl.classList.add('open'); root.classList.add('go'); window.__lenis && window.__lenis.start(); window.__heroWords && window.__heroWords(); setTimeout(() => { pl.remove(); root.classList.remove('lock'); }, 1200); };
       Promise.all([new Promise(r => document.readyState === 'complete' ? r() : addEventListener('load', r)), new Promise(r => setTimeout(r, 2000))]).then(finish);
       pl.onclick = finish;
     }
   }
-  // ---- v12: light-painting cursor, focus-pull, timecode HUD ----
+  // (light-painting trail and focus-pull blur removed; shared flags kept)
   const calm = matchMedia('(prefers-reduced-motion:reduce)').matches, lite = document.documentElement.classList.contains('lite');
-  if (matchMedia('(hover:hover) and (pointer:fine)').matches && !calm && !lite) {
-    const cv = el('canvas', 'paint'); document.body.append(cv); const cx = cv.getContext('2d'); let w, h, px = -1, py = -1, hue = 200, run = 0, idle = 0;
-    const size = () => { w = cv.width = innerWidth; h = cv.height = innerHeight; }; size(); addEventListener('resize', size);
-    const loop = () => { cx.globalCompositeOperation = 'destination-out'; cx.fillStyle = 'rgba(0,0,0,.08)'; cx.fillRect(0, 0, w, h); cx.globalCompositeOperation = 'source-over'; if (--idle > 0) requestAnimationFrame(loop); else { run = 0; cx.clearRect(0, 0, w, h); } };
-    addEventListener('mousemove', ev => { if (px >= 0) { hue = (hue + 2) % 360; cx.strokeStyle = `hsl(${hue},95%,68%)`; cx.shadowColor = cx.strokeStyle; cx.shadowBlur = 14; cx.lineWidth = 2.5; cx.lineCap = 'round'; cx.beginPath(); cx.moveTo(px, py); cx.lineTo(ev.clientX, ev.clientY); cx.stroke(); } px = ev.clientX; py = ev.clientY; idle = 90; if (!run) { run = 1; requestAnimationFrame(loop); } }, { passive: true });
-    document.addEventListener('mouseleave', () => px = -1);
-  }
-  if (!calm && !lite) {
-    const fo = new IntersectionObserver(es => es.forEach(x => x.target.classList.toggle('defocus', !x.isIntersecting)), { rootMargin: '-15% 0px -15% 0px' });
-    document.querySelectorAll('.techstack-header,.process h3,.process li,.tech-card').forEach(x => { x.classList.add('fp'); fo.observe(x); });
-  }
   // ---- v13: bokeh lights, giant outline word, scroll hint, ink ripple ----
-  if (!calm && !lite) {
-    const bk = el('div', 'bokeh'), cl = ['#60a5fa', '#a78bfa', '#f472b6', '#fbbf24'];
-    for (let i = 0; i < 14; i++) { const b = el('i'); b.style.cssText = `--s:${30 + Math.random() * 90}px;--x:${Math.random() * 100}vw;--d:${14 + Math.random() * 16}s;--dl:${-Math.random() * 20}s;--c:${cl[i % 4]}`; bk.append(b); }
-    document.body.prepend(bk);
-  }
   const tsec = $('#techstack'); if (tsec) tsec.prepend(el('div', 'bgword', 'DESIGN · PHOTO · VIDEO'));
   const hsec = $('.hero-section');
   if (hsec && !calm) { const sh = el('div', 'scrollhint', '<i></i><span>Scroll</span>'); hsec.append(sh); addEventListener('scroll', () => sh.classList.toggle('gone', scrollY > 80), { passive: true }); }
@@ -283,20 +265,6 @@
         });
       }
 
-      // live RGB histogram
-      const box = el('div', 'histo', '<canvas width="320" height="90"></canvas><small>RGB histogram</small>'), cv = box.querySelector('canvas'), note = box.querySelector('small'), c2 = cv.getContext('2d');
-      g22.querySelector('.cmpw').after(box);
-      let cur = [0, 1, 2].map(() => new Array(64).fill(0)), tgt = cur, raf = 0, imgEl, sc, sctx, dead = false;
-      const draw = () => { c2.clearRect(0, 0, 320, 90); [['#ef4444', 0], ['#22c55e', 1], ['#3b82f6', 2]].forEach(([col, ch]) => { const a = cur[ch], w = 320 / (a.length - 1); c2.beginPath(); c2.moveTo(0, 90); a.forEach((v, i) => c2.lineTo(i * w, 90 - v * 84)); c2.lineTo(320, 90); c2.closePath(); c2.globalCompositeOperation = 'lighter'; c2.fillStyle = col + '55'; c2.fill(); c2.strokeStyle = col; c2.lineWidth = 1.5; c2.stroke(); c2.globalCompositeOperation = 'source-over'; }); };
-      const anim = () => { let mv = false; cur = cur.map((a, ch) => a.map((v, i) => { const d = tgt[ch][i] - v; if (Math.abs(d) > .002) mv = true; return v + d * .18; })); draw(); raf = mv ? requestAnimationFrame(anim) : 0; };
-      const load = () => new Promise(res => { const im = new Image(); im.onload = () => { sc = document.createElement('canvas'); sc.width = 192; sc.height = Math.round(192 * im.naturalHeight / im.naturalWidth); sctx = sc.getContext('2d', { willReadFrequently: true }); res(im); }; im.onerror = () => res(null); im.src = gsrc; });
-      const compute = async f => {
-        if (dead) return; try {
-          imgEl = imgEl || await load(); if (!imgEl) throw 0; const canF = 'filter' in sctx; sctx.filter = canF ? f : 'none'; sctx.clearRect(0, 0, sc.width, sc.height); sctx.drawImage(imgEl, 0, 0, sc.width, sc.height);
-          tgt = T.hist(sctx.getImageData(0, 0, sc.width, sc.height).data); note.textContent = canF || f === 'none' ? 'RGB histogram' : 'RGB histogram (original - live look needs a newer browser)'; if (!raf) raf = requestAnimationFrame(anim);
-        } catch (err) { dead = true; box.remove(); }
-      };
-      compute('none'); looks.addEventListener('click', () => { const i = chips.findIndex(c => c.classList.contains('on')); compute(LK[Math.max(0, i)][1]); });
     }
 
     // pinned scrollytelling for the skills (desktop only; the card grid stays on phones)
@@ -312,12 +280,6 @@
       sec.querySelector('.dots').onclick = ev => { const d = ev.target.closest('i'); if (!d) return; const r = sec.getBoundingClientRect(), y = scrollY + r.top + (+d.dataset.k + .5) / n * Math.max(1, r.height - innerHeight); window.__lenis ? window.__lenis.scrollTo(y) : scrollTo({ top: y, behavior: 'smooth' }); };
     }
 
-    // calm mode (turns the heavy effects off; remembered, and on by default with Data Saver)
-    const fwc = $('.fab-wrap'), root22 = document.documentElement; let cb;
-    const stc = localStorage.getItem('mv_calm'), on0 = stc === null ? !!(navigator.connection && navigator.connection.saveData) : stc === '1';
-    const setCalm = v => { root22.classList.toggle('calm', v); localStorage.setItem('mv_calm', v ? '1' : '0'); if (cb) cb.classList.toggle('on', v); };
-    if (fwc) { cb = el('button', 'fab', ic('sliders', 20)); cb.title = 'Calm mode (fewer effects)'; cb.onclick = () => { setCalm(!root22.classList.contains('calm')); toast(root22.classList.contains('calm') ? 'Calm mode on' : 'Calm mode off'); }; fwc.prepend(cb); }
-    setCalm(on0);
   }
   addEventListener('keydown', e => { if (e.key !== 'Escape') return; bm.classList.remove('open'); closeToday(); const x = $('.vf-x'); if (x) x.click(); });
 })();

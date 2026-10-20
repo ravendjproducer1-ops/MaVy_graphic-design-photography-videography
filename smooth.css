@@ -441,3 +441,9 @@ body{transition:--accent-color .9s var(--ease),--accent-secondary .9s var(--ease
 .calm .fp.defocus{filter:none;opacity:1}
 .calm .ambient-glow,.calm .image-frame-container,.calm .tech-icon-box,.calm .process li,.calm .cmp img,.calm .marquee .track,.calm .bgword,.calm .orb{animation:none!important}
 .fab.on{background:var(--accent-glow);color:#fff}
+
+/* ---- v23: cleanup after review ---- */
+#qrBtn{display:none!important}
+.bg-grain,.bokeh,.paint,.amb,.histo{display:none!important}
+.pk{min-height:0}.picks{margin-bottom:.6rem}
+.scrolly{margin-top:-22vh}
